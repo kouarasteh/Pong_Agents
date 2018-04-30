@@ -1,10 +1,11 @@
 from collections import namedtuple
 import numpy as np
+import pickle
 import math,random
 paddle_height = 0.2
-GAMMA = 0.77
-BIGN = 20 #was 20
-BIGC = 4000 #was 2
+GAMMA = 0.8
+BIGN = 10 #was 20
+BIGC = 100 #was 2
 posActs = ['up','down','none']
 pongState = namedtuple('pongState','ball_x ball_y vel_x vel_y paddle_y')
         # #ball_x and ball_y are real numbers on the interval [0,1]. The lines x=0, y=0, and y=1 are walls; the ball bounces off a wall whenever it hits. The line x=1 is defended by your paddle.
@@ -33,7 +34,7 @@ class PongPlayer():
         self.q = {}
         self.N = {}
         self.rebounded = False
-        self.epsilon = 0.2
+        self.epsilon = 0.3
         for ballx in range(12):
             for bally in range(12):
                 for velx in [-1.0,0.0,1.0]:
@@ -114,6 +115,18 @@ class PongPlayer():
     def printQ(self):
          for x in self.q:
              if self.q.get(x) != 0.0: print(self.q.get(x))
+
+    def writeToFile(self,qfilename, Nfilename):
+        qfile = open(qfilename,'wb')
+        Nfile = open(Nfilename,'wb')
+        pickle.dump(self.q, qfile)
+        pickle.dump(self.N,Nfile)
+
+    def readFromFile(self,qfilename,Nfilename):
+        qfile = open(qfilename,'rb')
+        Nfile = open(Nfilename,'rb')
+        self.q = pickle.load(qfile)
+        self.N = pickle.load(Nfile)
 
 n = pongState(ball_x =0, ball_y=0,vel_x = 0, vel_y = 0, paddle_y = 0)
 #print(de.nextState.ball_x)
