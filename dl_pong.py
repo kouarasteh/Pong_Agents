@@ -1,9 +1,10 @@
 import numpy as np
-import dl_helpers as help
+import dl_helpers as dl
 from random import shuffle
 
 BIGN = 0
 batch_size = 128
+step_size = 0.1
 
 class dl_pong:
 
@@ -33,11 +34,11 @@ class dl_pong:
 
 
     def threeLayerNetwork (self, X, weights, bias, y, test):
-        Z1, acache1 = affine_forward(X, weights[0], bias[0])
-        A1, rcache1 = ReLU_forward(Z1)
-        Z2, acache2 = affine_forward(A1, weights[1], bias[1])
-        A2, rcache2 = ReLU_forward(Z2)
-        F, acache3 = affine_forward(A2, weights[2], bias[2])
+        Z1, acache1 = dl.affine_forward(X, weights[0], bias[0])
+        A1, rcache1 = dl.ReLU_forward(Z1)
+        Z2, acache2 = dl.affine_forward(A1, weights[1], bias[1])
+        A2, rcache2 = dl.ReLU_forward(Z2)
+        F, acache3 = dl.affine_forward(A2, weights[2], bias[2])
 
         if test is true:
             classifications = []
@@ -45,14 +46,21 @@ class dl_pong:
                 classifications.append(F[i].index(max(F[i])))
             return classifications
 
-        loss, dF = cross_entropy(F, y)
-        dA2, dW3, db3 = affine_backward(dF, acache3)
-        dZ2 = ReLU_backward(dA2, rcache2)
-        dA1, dW2, db2 = affine_backward(dZ2, acache2)
-        dZ1 = ReLU_backward(dA1, rcache1)
-        dX, dW1, db1 = affine_backward(dZ1, acache1)
+        loss, dF = dl.cross_entropy(F, y)
+        dA2, dW3, db3 = dl.affine_backward(dF, acache3)
+        dZ2 = dl.ReLU_backward(dA2, rcache2)
+        dA1, dW2, db2 = dl.affine_backward(dZ2, acache2)
+        dZ1 = dl.ReLU_backward(dA1, rcache1)
+        dX, dW1, db1 = dl.affine_backward(dZ1, acache1)
 
-        
+        weights[0] = weights[0] - step_size*dW1
+        weights[1] = weights[1] - step_size*dW2
+        weights[2] = weights[2] - step_size*dW3
+
+        bias[0] = bias[0] - step_size*db1
+        bias[1] = bias[1] - step_size*db2
+        bias[2] = bias[2] - step_size*db3
+
 
         return loss
 
